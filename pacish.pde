@@ -21,9 +21,9 @@ class Thing {
 }
 
 //VARS
-boolean easyMode = false;
+boolean easyMode = true;
 
-Thing pacman = new Thing(0, 0, #3cf024);
+Thing pacman = new Thing(10, 10, #3cf024);
 Thing coinOne = new Thing(50, 50, #DAA520);
 Thing coinTwo = new Thing(coinOne.x + 10, coinOne.y, #DAA520);
 Thing coinThree = new Thing(coinOne.x + 20, coinOne.y, #DAA520);
@@ -59,15 +59,19 @@ void setup(){
 
 void move(){
   if (direction == UP){
+    pacman.backY = pacman.y;
     pacman.y = pacman.y - 10;
   }
   else if (direction == DOWN){
+    pacman.backY = pacman.y;
     pacman.y = pacman.y + 10;
   }
   else if (direction == RIGHT){
+    pacman.backX = pacman.x;
     pacman.x = pacman.x + 10;
   }
   else if (direction == LEFT){
+   pacman.backX = pacman.x;
    pacman.x = pacman.x - 10;
   }
 }
@@ -81,12 +85,46 @@ void draw(){
   for(int i = 0; i < stuffs.size(); i++){
     stuffs.get(i).drawThing();
   }
+  
+  logic();
 }
 
 void logic(){
-  if (pacman.x < 0){
-    
+  if (easyMode){
+    if (pacman.x < 10){
+      pacman.x = pacman.backX;
+      //pacman.y = pacman.backY;
+    }
+    if (pacman.x > 480){
+      pacman.x = pacman.backX;
+      //pacman.y = pacman.backY;
+    }
+    if (pacman.y < 10){
+      //pacman.x = pacman.backX;
+      pacman.y = pacman.backY;
+    }
+    if (pacman.x > 480){
+      //pacman.x = pacman.backX;
+      pacman.y = pacman.backY;
+    }
   }
+  else{
+    if (pacman.x < 0){
+      kill();
+    }
+    if (pacman.x > 480){
+      kill();
+    }
+    if (pacman.y < 10){
+      kill();
+    }
+    if (pacman.x > 480){
+      kill();
+  }
+}
+
+void kill(){
+  
 }
 
 void keyPressed() {
