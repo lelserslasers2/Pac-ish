@@ -1,5 +1,5 @@
 //TO DO:
-//-fix AI one move,and do it for other 2
+//-fix AI one move,and do it for other 2, orange on seems to work...
 //-add way to restart game
 //-fix easy mode
 
@@ -47,7 +47,7 @@ Thing coinEight = new Thing(coinOne.x + 10, coinOne.y + 20, #DAA520);
 Thing coinNine = new Thing(coinOne.x + 20, coinOne.y + 20, #DAA520);
 
 Thing badGuyOne = new Thing(40, 40, #cf0000);
-Thing badGuyTwo = new Thing(40, 40, #cf0000);
+Thing badGuyTwo = new Thing(40, 40, #fcba03);
 Thing badGuyThree = new Thing(40, 40, #cf0000);
 
 ArrayList<Thing> stuffs = new ArrayList();
@@ -176,9 +176,10 @@ void draw(){
     text("SCORE: " + score, 30, 20);
     drawEdge();
     
-    badGuyOneMove();
-    logic();
     move();
+    badGuyOneMove();
+    badGuyTwoMove();
+    logic();
     
     coinMake();
   
@@ -213,6 +214,28 @@ void badGuyOneMove(){
     }
     else {
       badGuyOne.y = badGuyOne.y + 10;
+    }
+  }
+}
+
+void badGuyTwoMove(){
+  int difX = badGuyTwo.x - pacman.x;
+  int difY = badGuyTwo.y - pacman.y;
+  
+  if (abs(difX) > abs(difY)){
+    if (difX > 0){
+      badGuyTwo.x = badGuyTwo.x - 10;
+    }
+    else {
+      badGuyTwo.x = badGuyTwo.x + 10;
+    }
+  }
+  else {
+    if (difY > 0){
+      badGuyTwo.y = badGuyTwo.y - 10;
+    }
+    else {
+      badGuyTwo.y = badGuyTwo.y + 10;
     }
   }
 }
