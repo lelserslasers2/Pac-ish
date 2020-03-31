@@ -1,7 +1,5 @@
-//TO DO:
-//-fix easy mode
-//-finish comments
-
+//VARS TO BE CHANGED (game preferences)
+boolean easyMode = true;
 //main class for all the drawn objects/things
 class Thing {
  
@@ -25,12 +23,10 @@ class Thing {
   }
 }
 
-
-//VARS
+//MAIN VARS
 
 boolean notLock = true;
 int noBreak = 0;
-boolean easyMode = false;
 int chance = 0;
 int chanceTwo = 0;
 int boosted = 0;
@@ -59,7 +55,6 @@ Thing badGuyThree = new Thing(40, 40, #cf0000);
 ArrayList<Thing> stuffs = new ArrayList(); 
 
 int direction = RIGHT;
-
 
 //Code Starts
 
@@ -122,7 +117,6 @@ void setup(){
   println("Starting in 3...");
 }
 
-
 //make sure the rest of the coin is attached to the 'head' of the coin
 void coinMake(){
   coinTwo.x = coinOne.x + 10;
@@ -143,8 +137,7 @@ void coinMake(){
   coinNine.y = coinOne.y + 20;
 }
 
-
-//move's the pacman, like this so you are always moving, never stopping
+//moves the pacman, like this so you are always moving, never stopping
 void move(){
   if (direction == UP){
     pacman.backY = pacman.y;
@@ -164,34 +157,34 @@ void move(){
   }
 }
 
-
-
+//the function that runs every frame
 void draw(){
-  if (notLock){
-      if (noBreak == 1){
+  if (notLock){ //if game ends, wait for 3 seconds, so player can see how they died
+      if (noBreak == 1){//causes 3 second delay so player can see the starting positions of things
         delay(3000);
       }
-    
+    //prints current score
     background(#000000);
     fill(#03a1fc);
     textSize(20);
     text("SCORE: " + score, 20, 20);
     
-    move();
+    move(); //moves teh pacman
     
-    chance = (int)random(0, score/100);
+    //the way the game increases in hardness as you get more points
+    chance = (int)random(0, score/100); //random number, more points = better chance it will be higher
     
-    if (noBreak % 2 == 0){
+    if (noBreak % 2 == 0){ //every other, otherwise pacman can't turn without being caught
       badGuyOneMove();
       badGuyThreeMove();
     }
-    else{
+    else{ //alternates so ghost 1 and 2 can't be in the same square
       badGuyTwoMove(); 
     }
     
-    for (int i = 0; i < chance; i = i + 1){
+    for (int i = 0; i < chance; i = i + 1){ //create's 1/100 chance for every go, so if it goes 20 times, then 20/100 chance, causes the ghost's to 'boost' or move again
       chanceTwo = (int)random(0, 100);
-      if (chanceTwo == 49){
+      if (chanceTwo == 49){ 
         boosted = boosted + 1;
         badGuyOneMove();
         badGuyThreeMove();
@@ -200,26 +193,25 @@ void draw(){
       }
     }
     
-    logic();
+    logic(); //does basic collision checking
     
-    coinMake();
+    coinMake(); //makes sure the coin is together
   
-    for(int i = 0; i < stuffs.size(); i++){
+    for(int i = 0; i < stuffs.size(); i++){ //draws it, probaly faster ways to do it, but this was easy
       stuffs.get(i).drawThing();
     }  
  
-    noBreak = noBreak + 1;
+    noBreak = noBreak + 1; //game counter, used so that the pacman can be faster, but other things still run
     }
-    else {
+    else { //if game ends, wait for 3 seconds, so player can see how they died
       fill(#03a1fc);
       text("GAME OVER", 20, 40);
       delay(3000);
-      restart();
+      restart(); //restart function
     }
 }
 
-
-//resets all the vars, so after you die, you can keep playing
+//resets all the vars, so after you die, you can play again
 void restart(){
   
   println("Restarting in 3...");
@@ -266,7 +258,6 @@ void restart(){
   badGuyThree.y = a;
 }
 
-
 //controls the first ghost's movement
 void badGuyOneMove(){
   //gets the differences in the x and y values
@@ -274,7 +265,7 @@ void badGuyOneMove(){
   int difY = badGuyOne.y - pacman.y;
   
   if (abs(difX) > abs(difY)){ //sees which gap is bigger, so cuts down the farthest dif
-    if (difX > 0){
+    if (difX > 0){ //if the dif is neg, has to go back, if pos, will keep going, tries to get both difs to 0
       badGuyOne.x = badGuyOne.x - 10;
     }
     else {
@@ -290,7 +281,7 @@ void badGuyOneMove(){
     }
   }
 }
-
+//same as ghost 1, just with the word 'Two' instead of 'One'
 void badGuyTwoMove(){
   int difX = badGuyTwo.x - pacman.x;
   int difY = badGuyTwo.y - pacman.y;
@@ -312,10 +303,23 @@ void badGuyTwoMove(){
     }
   }
 }
-/*
+//play's 'guard', if close runs at pacman, otherwise, runs inbetween pacman and coin
 void badGuyThreeMove(){
+  //these difs will be used to find the hypotenuse
   int difX = badGuyThree.x - pacman.x;
   int difY = badGuyThree.y - pacman.y;
+  
+  float hypo = sqrt(sq(abs(difX)) + sq(abs(difY))); //the calc that finds the hypotenuse
+    
+  if (hypo <= 60){ //if we are close, do same thing as before and chase
+    difX = badGuyThree.x - pacman.x;
+    difY = badGuyThree.y - pacman.y;
+  }
+  else{//if we are sort of far away, play 'guard', tries to get into space between the pacman and the coin
+    //same as before, execpt for the 'target' or the position after the '-' sign
+    difX = badGuyThree.x - (pacman.x + coinFive.x)/2; 
+    difY = badGuyThree.y - (pacman.y + coinFive.y)/2;
+  }
   
   if (abs(difX) > abs(difY)){
     if (difX > 0){
@@ -334,70 +338,24 @@ void badGuyThreeMove(){
     }
   }
 }
-*/
-void badGuyThreeMove(){
-  int difX = badGuyThree.x - pacman.x;
-  int difY = badGuyThree.y - pacman.y;
-  
-  float hypo = sqrt(sq(abs(difX)) + sq(abs(difY)));
-    
-  if (hypo <= 60){
-    difX = badGuyThree.x - pacman.x;
-    difY = badGuyThree.y - pacman.y;
-    if (abs(difX) > abs(difY)){
-      if (difX > 0){
-        badGuyThree.x = badGuyThree.x - 10;
-      }
-      else {
-        badGuyThree.x = badGuyThree.x + 10;
-      }
-    }
-    else {
-      if (difY > 0){
-        badGuyThree.y = badGuyThree.y - 10;
-      }
-      else {
-        badGuyThree.y = badGuyThree.y + 10;
-      }
-    }
-  }
-  else{
-    difX = badGuyThree.x - (pacman.x + coinFive.x)/2;
-    difY = badGuyThree.y - (pacman.y + coinFive.y)/2;
-    if (abs(difX) > abs(difY)){
-      if (difX > 0){
-        badGuyThree.x = badGuyThree.x - 10;
-      }
-      else {
-        badGuyThree.x = badGuyThree.x + 10;
-      }
-    }
-    else {
-      if (difY > 0){
-        badGuyThree.y = badGuyThree.y - 10;
-      }
-      else {
-        badGuyThree.y = badGuyThree.y + 10;
-      }
-    }
-  }
-}
 
+//the logic function, only called once per draw, but I find it nicer to put it in it's own function, does the basic 'hitbox' checking
 void logic(){
-  if (easyMode){
-    if (pacman.x < 10){
+  //if you go out of bounds
+  if (easyMode){ //is easy mode, just stop when running into a wall, otherwise die
+    if (pacman.x < 0){
       pacman.x = pacman.backX;
       //pacman.y = pacman.backY;
     }
-    if (pacman.x > 480){
+    if (pacman.x > 490){
       pacman.x = pacman.backX;
       //pacman.y = pacman.backY;
     }
-    if (pacman.y < 10){
+    if (pacman.y < 0){
       //pacman.x = pacman.backX;
       pacman.y = pacman.backY;
     }
-    if (pacman.x > 480){
+    if (pacman.y > 490){
       //pacman.x = pacman.backX;
       pacman.y = pacman.backY;
     }
@@ -417,6 +375,7 @@ void logic(){
     }
   }
   
+  //getting the coin
   if (pacman.x == coinOne.x && pacman.y == coinOne.y){
     score = score + 100;
     moveCoin();
@@ -450,6 +409,7 @@ void logic(){
     moveCoin();
   }
   
+  //dying to ghost
   if (pacman.x == badGuyOne.x && pacman.y == badGuyOne.y){
     kill();
   }
@@ -459,11 +419,9 @@ void logic(){
   if (pacman.x == badGuyThree.x && pacman.y == badGuyThree.y){
     kill();
   }
-  
 }
 
-
-
+//had to use this multiple times, so... put it in a fucntion, just moves the coin, only need to move the 'head' coin b/c rest will follow
 void moveCoin(){
   int a = (int)random(1, 460/10);
   a = a * 10;
@@ -473,8 +431,7 @@ void moveCoin(){
   coinOne.y = a;
 }
 
-
-
+//just needed to use this multiple times
 void kill(){
   fill(#03a1fc);
   text("GAME OVER", 20, 40);
@@ -482,8 +439,7 @@ void kill(){
   println("OOF! You died!");
 }
 
-
-
+//the controls, can use arrow keys or wasd
 void keyPressed() {
   //Why can't I do direction = keyCode?
   if (key == CODED) {
