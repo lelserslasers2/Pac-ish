@@ -1,5 +1,10 @@
+//TO DO
+//-make starting screen, with title and instructions (just play it once, not everytime game restarts)
+//-add 2 more classes, mabe coin class, and ghost class (for ghosts 1 and 2)
+
 //VARS TO BE CHANGED (game preferences)
 boolean easyMode = true;
+int fps = 20;
 //main class for all the drawn objects/things
 class Thing {
  
@@ -60,7 +65,7 @@ int direction = RIGHT;
 
 void setup(){
   size(500,500);
-  frameRate(20);
+  frameRate(fps);
   noStroke();
   
   //randomizing starting positions, and adding each object to the list
@@ -312,7 +317,7 @@ void badGuyThreeMove(){
   float hypo = sqrt(sq(abs(difX)) + sq(abs(difY))); //the calc that finds the hypotenuse
     
   if (hypo <= 60){ //if we are close, do same thing as before and chase
-    difX = badGuyThree.x - pacman.x;
+    difX = badGuyThree.x - pacman.x; //too lazy to make new names...
     difY = badGuyThree.y - pacman.y;
   }
   else{//if we are sort of far away, play 'guard', tries to get into space between the pacman and the coin
@@ -345,18 +350,14 @@ void logic(){
   if (easyMode){ //is easy mode, just stop when running into a wall, otherwise die
     if (pacman.x < 0){
       pacman.x = pacman.backX;
-      //pacman.y = pacman.backY;
     }
-    if (pacman.x > 490){
+    else if (pacman.x > 490){
       pacman.x = pacman.backX;
-      //pacman.y = pacman.backY;
     }
-    if (pacman.y < 0){
-      //pacman.x = pacman.backX;
+    else if (pacman.y < 0){
       pacman.y = pacman.backY;
     }
-    if (pacman.y > 490){
-      //pacman.x = pacman.backX;
+    else if (pacman.y > 490){
       pacman.y = pacman.backY;
     }
   }
@@ -364,13 +365,13 @@ void logic(){
     if (pacman.x < 0){
       kill();
     }
-    if (pacman.x > 490){
+    else if (pacman.x > 490){
       kill();
     }
-    if (pacman.y < 0){
+    else if (pacman.y < 0){
       kill();
     }
-    if (pacman.y > 490){
+    else if (pacman.y > 490){
       kill();
     }
   }
@@ -413,10 +414,10 @@ void logic(){
   if (pacman.x == badGuyOne.x && pacman.y == badGuyOne.y){
     kill();
   }
-  if (pacman.x == badGuyTwo.x && pacman.y == badGuyTwo.y){
+  else if (pacman.x == badGuyTwo.x && pacman.y == badGuyTwo.y){
     kill();
   }
-  if (pacman.x == badGuyThree.x && pacman.y == badGuyThree.y){
+  else if (pacman.x == badGuyThree.x && pacman.y == badGuyThree.y){
     kill();
   }
 }
@@ -439,20 +440,20 @@ void kill(){
   println("OOF! You died!");
 }
 
-//the controls, can use arrow keys or wasd
+//the controls, can use arrow keys or wasd, or hjkl
 void keyPressed() {
   //Why can't I do direction = keyCode?
   if (key == CODED) {
     if (keyCode == UP) {
       direction = UP;
     }
-    if (keyCode == DOWN) {
+    else if (keyCode == DOWN) {
       direction = DOWN;
     }
-    if (keyCode == RIGHT) {
+    else if (keyCode == RIGHT) {
       direction = RIGHT;
     }
-    if (keyCode == LEFT) {
+    else if (keyCode == LEFT) {
       direction = LEFT;
     }
   }
@@ -460,13 +461,26 @@ void keyPressed() {
     if (key == 'w') {
       direction = UP;
     }
-    if (key == 's') {
+    else if (key == 's') {
       direction = DOWN;
     }
-    if (key == 'd') {
+    else if (key == 'd') {
       direction = RIGHT;
     }
-    if (key == 'a') {
+    else if (key == 'a') {
+      direction = LEFT;
+    }
+    
+    else if (key == 'k') {
+      direction = UP;
+    }
+    else if (key == 'j') {
+      direction = DOWN;
+    }
+    else if (key == 'l') {
+      direction = RIGHT;
+    }
+    else if (key == 'h') {
       direction = LEFT;
     }
   }
