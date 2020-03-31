@@ -1,8 +1,8 @@
 //TO DO:
-//-fix AI one move,and do it for other 2, orange on seems to work...
-//-add way to restart game
 //-fix easy mode
+//-finish comments
 
+//main class for all the drawn objects/things
 class Thing {
  
   int x;
@@ -31,11 +31,15 @@ class Thing {
 boolean notLock = true;
 int noBreak = 0;
 boolean easyMode = false;
-
+int chance = 0;
+int chanceTwo = 0;
+int boosted = 0;
 int score = 0;
 
+//the object that the player controls
 Thing pacman = new Thing(10, 10, #3cf024);
 
+//the coin is 3x3, so I needed 9 objects, 8 of them are all relative to the first's position
 Thing coinOne = new Thing(50, 50, #DAA520);
 Thing coinTwo = new Thing(coinOne.x + 10, coinOne.y, #DAA520);
 Thing coinThree = new Thing(coinOne.x + 20, coinOne.y, #DAA520);
@@ -46,11 +50,13 @@ Thing coinSeven = new Thing(coinOne.x, coinOne.y + 20, #DAA520);
 Thing coinEight = new Thing(coinOne.x + 10, coinOne.y + 20, #DAA520);
 Thing coinNine = new Thing(coinOne.x + 20, coinOne.y + 20, #DAA520);
 
+//the ghosts, 1 and 2 chase the pacman, the 3rd plays 'guard'
 Thing badGuyOne = new Thing(40, 40, #cf0000);
-Thing badGuyTwo = new Thing(40, 40, #fcba03);
+Thing badGuyTwo = new Thing(40, 40, #cf0000);
 Thing badGuyThree = new Thing(40, 40, #cf0000);
 
-ArrayList<Thing> stuffs = new ArrayList();
+//more modular, could easlily add more AI/ghosts b/c it's 'list-based-drawing' (TM)
+ArrayList<Thing> stuffs = new ArrayList(); 
 
 int direction = RIGHT;
 
@@ -62,18 +68,20 @@ void setup(){
   frameRate(20);
   noStroke();
   
-  int a = (int)random(10, 480/10);
+  //randomizing starting positions, and adding each object to the list
+  
+  int a = (int)random(1, 480/10); //just a random number, 10 times smaller, then mulitply so I only have multiples of 10
   a = a * 10;
   pacman.x = a;
-  a = (int)random(10, 480/10);
+  a = (int)random(1, 480/10);
   a = a * 10;
   pacman.y = a;
   stuffs.add(pacman);
   
-  a = (int)random(10, 460/10);
+  a = (int)random(1, 460/10);
   a = a * 10;
   coinOne.x = a;
-  a = (int)random(10, 460/10);
+  a = (int)random(1, 460/10);
   a = a * 10;
   coinOne.y = a;
   stuffs.add(coinOne);
@@ -87,33 +95,35 @@ void setup(){
   stuffs.add(coinEight);
   stuffs.add(coinNine);
   
-  a = (int)random(10, 480/10);
+  a = (int)random(1, 480/10);
   a = a * 10;
   badGuyOne.x = a;
-  a = (int)random(10, 480/10);
+  a = (int)random(1, 480/10);
   a = a * 10;
   badGuyOne.y = a;
   stuffs.add(badGuyOne);
   
-  a = (int)random(10, 480/10);
+  a = (int)random(1, 480/10);
   a = a * 10;
   badGuyTwo.x = a;
-  a = (int)random(10, 480/10);
+  a = (int)random(1, 480/10);
   a = a * 10;
   badGuyTwo.y = a;
   stuffs.add(badGuyTwo);
   
-  a = (int)random(10, 480/10);
+  a = (int)random(1, 480/10);
   a = a * 10;
   badGuyThree.x = a;
-  a = (int)random(10, 480/10);
+  a = (int)random(1, 480/10);
   a = a * 10;
   badGuyThree.y = a;
   stuffs.add(badGuyThree);
+  
+  println("Starting in 3...");
 }
 
 
-
+//make sure the rest of the coin is attached to the 'head' of the coin
 void coinMake(){
   coinTwo.x = coinOne.x + 10;
   coinTwo.y = coinOne.y;
@@ -134,17 +144,7 @@ void coinMake(){
 }
 
 
-
-void drawEdge(){
- fill(#03a1fc);
- rect(0, 0, 500, 10);
- rect(0, 0, 10, 500);
- rect(0, 490, 500, 10);
- rect(490, 0, 10, 500);
-}
-
-
-
+//move's the pacman, like this so you are always moving, never stopping
 void move(){
   if (direction == UP){
     pacman.backY = pacman.y;
@@ -173,12 +173,33 @@ void draw(){
       }
     
     background(#000000);
-    text("SCORE: " + score, 30, 20);
-    drawEdge();
+    fill(#03a1fc);
+    textSize(20);
+    text("SCORE: " + score, 20, 20);
     
     move();
-    badGuyOneMove();
-    badGuyTwoMove();
+    
+    chance = (int)random(0, score/100);
+    
+    if (noBreak % 2 == 0){
+      badGuyOneMove();
+      badGuyThreeMove();
+    }
+    else{
+      badGuyTwoMove(); 
+    }
+    
+    for (int i = 0; i < chance; i = i + 1){
+      chanceTwo = (int)random(0, 100);
+      if (chanceTwo == 49){
+        boosted = boosted + 1;
+        badGuyOneMove();
+        badGuyThreeMove();
+        badGuyTwoMove(); 
+        println("It's getting harder...Chance was about " + chance + "/100...Times boosted: " + boosted + "...");
+      }
+    }
+    
     logic();
     
     coinMake();
@@ -190,17 +211,69 @@ void draw(){
     noBreak = noBreak + 1;
     }
     else {
-      text("GAME OVER", 30, 30);
+      fill(#03a1fc);
+      text("GAME OVER", 20, 40);
+      delay(3000);
+      restart();
     }
 }
 
 
+//resets all the vars, so after you die, you can keep playing
+void restart(){
+  
+  println("Restarting in 3...");
+  
+  score = 0;
+  noBreak = 0;
+  notLock = true;
+  direction = RIGHT;
+  chance = 0;
+  
+  int a = (int)random(10, 480/10);
+  a = a * 10;
+  pacman.x = a;
+  a = (int)random(1, 480/10);
+  a = a * 10;
+  pacman.y = a;
+  
+  a = (int)random(1, 460/10);
+  a = a * 10;
+  coinOne.x = a;
+  a = (int)random(1, 460/10);
+  a = a * 10;
+  coinOne.y = a;
+  
+  a = (int)random(1, 480/10);
+  a = a * 10;
+  badGuyOne.x = a;
+  a = (int)random(1, 480/10);
+  a = a * 10;
+  badGuyOne.y = a;
+  
+  a = (int)random(1, 480/10);
+  a = a * 10;
+  badGuyTwo.x = a;
+  a = (int)random(1, 480/10);
+  a = a * 10;
+  badGuyTwo.y = a;
+  
+  a = (int)random(1, 480/10);
+  a = a * 10;
+  badGuyThree.x = a;
+  a = (int)random(1, 480/10);
+  a = a * 10;
+  badGuyThree.y = a;
+}
 
+
+//controls the first ghost's movement
 void badGuyOneMove(){
-  int difX = badGuyOne.x - pacman.x;
+  //gets the differences in the x and y values
+  int difX = badGuyOne.x - pacman.x; 
   int difY = badGuyOne.y - pacman.y;
   
-  if (abs(difX) > abs(difY)){
+  if (abs(difX) > abs(difY)){ //sees which gap is bigger, so cuts down the farthest dif
     if (difX > 0){
       badGuyOne.x = badGuyOne.x - 10;
     }
@@ -239,8 +312,76 @@ void badGuyTwoMove(){
     }
   }
 }
-
-
+/*
+void badGuyThreeMove(){
+  int difX = badGuyThree.x - pacman.x;
+  int difY = badGuyThree.y - pacman.y;
+  
+  if (abs(difX) > abs(difY)){
+    if (difX > 0){
+      badGuyThree.x = badGuyThree.x - 10;
+    }
+    else {
+      badGuyThree.x = badGuyThree.x + 10;
+    }
+  }
+  else {
+    if (difY > 0){
+      badGuyThree.y = badGuyThree.y - 10;
+    }
+    else {
+      badGuyThree.y = badGuyThree.y + 10;
+    }
+  }
+}
+*/
+void badGuyThreeMove(){
+  int difX = badGuyThree.x - pacman.x;
+  int difY = badGuyThree.y - pacman.y;
+  
+  float hypo = sqrt(sq(abs(difX)) + sq(abs(difY)));
+    
+  if (hypo <= 60){
+    difX = badGuyThree.x - pacman.x;
+    difY = badGuyThree.y - pacman.y;
+    if (abs(difX) > abs(difY)){
+      if (difX > 0){
+        badGuyThree.x = badGuyThree.x - 10;
+      }
+      else {
+        badGuyThree.x = badGuyThree.x + 10;
+      }
+    }
+    else {
+      if (difY > 0){
+        badGuyThree.y = badGuyThree.y - 10;
+      }
+      else {
+        badGuyThree.y = badGuyThree.y + 10;
+      }
+    }
+  }
+  else{
+    difX = badGuyThree.x - (pacman.x + coinFive.x)/2;
+    difY = badGuyThree.y - (pacman.y + coinFive.y)/2;
+    if (abs(difX) > abs(difY)){
+      if (difX > 0){
+        badGuyThree.x = badGuyThree.x - 10;
+      }
+      else {
+        badGuyThree.x = badGuyThree.x + 10;
+      }
+    }
+    else {
+      if (difY > 0){
+        badGuyThree.y = badGuyThree.y - 10;
+      }
+      else {
+        badGuyThree.y = badGuyThree.y + 10;
+      }
+    }
+  }
+}
 
 void logic(){
   if (easyMode){
@@ -265,13 +406,13 @@ void logic(){
     if (pacman.x < 0){
       kill();
     }
-    if (pacman.x > 480){
+    if (pacman.x > 490){
       kill();
     }
-    if (pacman.y < 10){
+    if (pacman.y < 0){
       kill();
     }
-    if (pacman.x > 480){
+    if (pacman.y > 490){
       kill();
     }
   }
@@ -324,10 +465,10 @@ void logic(){
 
 
 void moveCoin(){
-  int a = (int)random(10, 460/10);
+  int a = (int)random(1, 460/10);
   a = a * 10;
   coinOne.x = a;
-  a = (int)random(10, 460/10);
+  a = (int)random(1, 460/10);
   a = a * 10;
   coinOne.y = a;
 }
@@ -335,8 +476,10 @@ void moveCoin(){
 
 
 void kill(){
-  text("GAME OVER", 30, 30);
+  fill(#03a1fc);
+  text("GAME OVER", 20, 40);
   notLock = false;
+  println("OOF! You died!");
 }
 
 
@@ -354,6 +497,20 @@ void keyPressed() {
       direction = RIGHT;
     }
     if (keyCode == LEFT) {
+      direction = LEFT;
+    }
+  }
+  else{
+    if (key == 'w') {
+      direction = UP;
+    }
+    if (key == 's') {
+      direction = DOWN;
+    }
+    if (key == 'd') {
+      direction = RIGHT;
+    }
+    if (key == 'a') {
       direction = LEFT;
     }
   }
