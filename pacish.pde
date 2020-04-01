@@ -1,10 +1,12 @@
 //TO DO
-//-make starting screen, with title and instructions (just play it once, not everytime game restarts)
 //-add 2 more classes, mabe coin class, and ghost class (for ghosts 1 and 2)
 
 //VARS TO BE CHANGED (game preferences)
 boolean easyMode = true;
 int fps = 20;
+
+//CLASSES
+
 //main class for all the drawn objects/things
 class Thing {
  
@@ -28,6 +30,135 @@ class Thing {
   }
 }
 
+
+class Coin extends Thing {
+  
+  ArrayList<Thing> coinParts;
+  
+  Coin(int x, int y, int fillColor){
+    super(x, y, fillColor);
+    this.coinParts = new ArrayList<Thing>();
+  }
+  
+  void addPart(Thing newPart) {
+    coinParts.add(newPart);
+  }
+  
+  void makeCoin(){
+    for (int i = 0; i < coinParts.size(); i = i + 1){ //NOTE: 0 is where old 2 is!
+      if (i == 0){
+        coinParts.get(i).x = x + 10;
+        coinParts.get(i).y = y;
+      }
+      else if (i == 1){
+        coinParts.get(i).x = x + 20;
+        coinParts.get(i).y = y;
+      }
+      else if (i == 2){
+        coinParts.get(i).x = x;
+        coinParts.get(i).y = y + 10;
+      }
+      else if (i == 3){
+        coinParts.get(i).x = x + 10;
+        coinParts.get(i).y = y + 10;
+      }
+      else if (i == 4){
+        coinParts.get(i).x = x + 20;
+        coinParts.get(i).y = y + 10;
+      }
+      else if (i == 5){
+        coinParts.get(i).x = x;
+        coinParts.get(i).y = y + 20;
+      }
+      else if (i == 6){
+        coinParts.get(i).x = x + 10;
+        coinParts.get(i).y = y + 20;
+      }
+      else if (i == 7){
+        coinParts.get(i).x = x + 20;
+        coinParts.get(i).y = y + 20;
+      }
+    }
+  }
+  
+  void moveCoin(){
+    int a = (int)random(1, 460/10);
+    a = a * 10;
+    x = a;
+    a = (int)random(1, 460/10);
+    a = a * 10;
+    y = a;
+  }
+  
+}
+
+
+class Ghost extends Thing { //ghost class with bonus functions
+  
+  Ghost(int x, int y, int fillColor){
+    super(x, y, fillColor);
+  }
+  
+  void attackMove(){
+    //gets the differences in the x and y values
+    int difX = x - pacman.x; 
+    int difY = y - pacman.y;
+    
+    if (abs(difX) > abs(difY)){ //sees which gap is bigger, so cuts down the farthest dif
+      if (difX > 0){ //if the dif is neg, has to go back, if pos, will keep going, tries to get both difs to 0
+        x = x - 10;
+      }
+      else {
+        x = x + 10;
+      }
+    }
+    else {
+      if (difY > 0){
+        y = y - 10;
+      }
+      else {
+        y = y + 10;
+      }
+    }
+  }
+  
+  void guardMove(){
+    //these difs will be used to find the hypotenuse
+    int difX = x - pacman.x;
+    int difY = y - pacman.y;
+  
+    float hypo = sqrt(sq(abs(difX)) + sq(abs(difY))); //the calc that finds the hypotenuse
+    
+    if (hypo <= 60){ //if we are close, do same thing as before and chase
+      difX = x - pacman.x; //too lazy to make new names...
+      difY = y - pacman.y;
+    }
+    else{//if we are sort of far away, play 'guard', tries to get into space between the pacman and the coin
+      //same as before, execpt for the 'target' or the position after the '-' sign
+      difX = x - (pacman.x + coinFive.x)/2; 
+      difY = y - (pacman.y + coinFive.y)/2;
+    }
+    
+    if (abs(difX) > abs(difY)){
+      if (difX > 0){
+        x = x - 10;
+      }
+      else {
+        x = x + 10;
+      }
+    }
+    else {
+      if (difY > 0){
+        y = y - 10;
+      }
+      else {
+        y = y + 10;
+      }
+    }
+  }
+  
+}
+
 //MAIN VARS
 
 boolean notLock = true;
@@ -36,12 +167,13 @@ int chance = 0;
 int chanceTwo = 0;
 int boosted = 0;
 int score = 0;
+boolean showStart = true;
 
 //the object that the player controls
 Thing pacman = new Thing(10, 10, #3cf024);
 
 //the coin is 3x3, so I needed 9 objects, 8 of them are all relative to the first's position
-Thing coinOne = new Thing(50, 50, #DAA520);
+Coin coinOne = new Coin(50, 50, #DAA520);
 Thing coinTwo = new Thing(coinOne.x + 10, coinOne.y, #DAA520);
 Thing coinThree = new Thing(coinOne.x + 20, coinOne.y, #DAA520);
 Thing coinFour = new Thing(coinOne.x, coinOne.y + 10, #DAA520);
@@ -52,9 +184,9 @@ Thing coinEight = new Thing(coinOne.x + 10, coinOne.y + 20, #DAA520);
 Thing coinNine = new Thing(coinOne.x + 20, coinOne.y + 20, #DAA520);
 
 //the ghosts, 1 and 2 chase the pacman, the 3rd plays 'guard'
-Thing badGuyOne = new Thing(40, 40, #cf0000);
-Thing badGuyTwo = new Thing(40, 40, #cf0000);
-Thing badGuyThree = new Thing(40, 40, #cf0000);
+Ghost badGuyOne = new Ghost(40, 40, #cf0000);
+Ghost badGuyTwo = new Ghost(40, 40, #cf0000);
+Ghost badGuyThree = new Ghost(40, 40, #cf0000);
 
 //more modular, could easlily add more AI/ghosts b/c it's 'list-based-drawing' (TM)
 ArrayList<Thing> stuffs = new ArrayList(); 
@@ -78,22 +210,25 @@ void setup(){
   pacman.y = a;
   stuffs.add(pacman);
   
-  a = (int)random(1, 460/10);
-  a = a * 10;
-  coinOne.x = a;
-  a = (int)random(1, 460/10);
-  a = a * 10;
-  coinOne.y = a;
+  moveCoin();
   stuffs.add(coinOne);
   
   stuffs.add(coinTwo);
+  coinOne.addPart(coinTwo);
   stuffs.add(coinThree);
+  coinOne.addPart(coinThree);
   stuffs.add(coinFour);
+  coinOne.addPart(coinFour);
   stuffs.add(coinFive);
+  coinOne.addPart(coinFive);
   stuffs.add(coinSix);
+  coinOne.addPart(coinSix);
   stuffs.add(coinSeven);
+  coinOne.addPart(coinSeven);
   stuffs.add(coinEight);
+  coinOne.addPart(coinEight);
   stuffs.add(coinNine);
+  coinOne.addPart(coinNine);
   
   a = (int)random(1, 480/10);
   a = a * 10;
@@ -118,28 +253,11 @@ void setup(){
   a = a * 10;
   badGuyThree.y = a;
   stuffs.add(badGuyThree);
-  
-  println("Starting in 3...");
 }
 
 //make sure the rest of the coin is attached to the 'head' of the coin
 void coinMake(){
-  coinTwo.x = coinOne.x + 10;
-  coinTwo.y = coinOne.y;
-  coinThree.x = coinOne.x + 20;
-  coinThree.y = coinOne.y;
-  coinFour.x = coinOne.x;
-  coinFour.y = coinOne.y + 10;
-  coinFive.x = coinOne.x + 10;
-  coinFive.y = coinOne.y + 10;
-  coinSix.x = coinOne.x + 20;
-  coinSix.y = coinOne.y + 10;
-  coinSeven.x = coinOne.x;
-  coinSeven.y = coinOne.y + 20;
-  coinEight.x = coinOne.x + 10;
-  coinEight.y = coinOne.y + 20;
-  coinNine.x = coinOne.x + 20;
-  coinNine.y = coinOne.y + 20;
+  coinOne.makeCoin();
 }
 
 //moves the pacman, like this so you are always moving, never stopping
@@ -164,6 +282,10 @@ void move(){
 
 //the function that runs every frame
 void draw(){
+  if (showStart){//shows the instuctions once
+    startScreen();
+  }
+  else {
   if (notLock){ //if game ends, wait for 3 seconds, so player can see how they died
       if (noBreak == 1){//causes 3 second delay so player can see the starting positions of things
         delay(3000);
@@ -214,6 +336,25 @@ void draw(){
       delay(3000);
       restart(); //restart function
     }
+  }
+}
+
+//the instuction screen
+void startScreen(){
+  background(#000000);
+  fill(#03a1fc);
+  textSize(100);
+  text("PAC-ISH", 50, 100);
+  textSize(40);
+  text("you are the green.", 75, 150);
+  text("use wasd, the arrow keys, ", 10, 185);
+  text("or hjkl to move.", 85, 220);
+  text("the goal is to get", 75, 255);
+  text("the coin (Gold square).", 40, 290);
+  text("avoid the bad guys", 75, 325);
+  text("(the red squares).", 75, 360);
+  textSize(20);
+  text("Press 'Enter' to start.", 135, 425);
 }
 
 //resets all the vars, so after you die, you can play again
@@ -226,6 +367,7 @@ void restart(){
   notLock = true;
   direction = RIGHT;
   chance = 0;
+  boosted = 0;
   
   int a = (int)random(10, 480/10);
   a = a * 10;
@@ -234,12 +376,7 @@ void restart(){
   a = a * 10;
   pacman.y = a;
   
-  a = (int)random(1, 460/10);
-  a = a * 10;
-  coinOne.x = a;
-  a = (int)random(1, 460/10);
-  a = a * 10;
-  coinOne.y = a;
+  moveCoin();
   
   a = (int)random(1, 480/10);
   a = a * 10;
@@ -265,83 +402,17 @@ void restart(){
 
 //controls the first ghost's movement
 void badGuyOneMove(){
-  //gets the differences in the x and y values
-  int difX = badGuyOne.x - pacman.x; 
-  int difY = badGuyOne.y - pacman.y;
-  
-  if (abs(difX) > abs(difY)){ //sees which gap is bigger, so cuts down the farthest dif
-    if (difX > 0){ //if the dif is neg, has to go back, if pos, will keep going, tries to get both difs to 0
-      badGuyOne.x = badGuyOne.x - 10;
-    }
-    else {
-      badGuyOne.x = badGuyOne.x + 10;
-    }
-  }
-  else {
-    if (difY > 0){
-      badGuyOne.y = badGuyOne.y - 10;
-    }
-    else {
-      badGuyOne.y = badGuyOne.y + 10;
-    }
-  }
+  badGuyOne.attackMove();
 }
-//same as ghost 1, just with the word 'Two' instead of 'One'
+
+//same as ghost 1
 void badGuyTwoMove(){
-  int difX = badGuyTwo.x - pacman.x;
-  int difY = badGuyTwo.y - pacman.y;
-  
-  if (abs(difX) > abs(difY)){
-    if (difX > 0){
-      badGuyTwo.x = badGuyTwo.x - 10;
-    }
-    else {
-      badGuyTwo.x = badGuyTwo.x + 10;
-    }
-  }
-  else {
-    if (difY > 0){
-      badGuyTwo.y = badGuyTwo.y - 10;
-    }
-    else {
-      badGuyTwo.y = badGuyTwo.y + 10;
-    }
-  }
+  badGuyTwo.attackMove();
 }
+
 //play's 'guard', if close runs at pacman, otherwise, runs inbetween pacman and coin
 void badGuyThreeMove(){
-  //these difs will be used to find the hypotenuse
-  int difX = badGuyThree.x - pacman.x;
-  int difY = badGuyThree.y - pacman.y;
-  
-  float hypo = sqrt(sq(abs(difX)) + sq(abs(difY))); //the calc that finds the hypotenuse
-    
-  if (hypo <= 60){ //if we are close, do same thing as before and chase
-    difX = badGuyThree.x - pacman.x; //too lazy to make new names...
-    difY = badGuyThree.y - pacman.y;
-  }
-  else{//if we are sort of far away, play 'guard', tries to get into space between the pacman and the coin
-    //same as before, execpt for the 'target' or the position after the '-' sign
-    difX = badGuyThree.x - (pacman.x + coinFive.x)/2; 
-    difY = badGuyThree.y - (pacman.y + coinFive.y)/2;
-  }
-  
-  if (abs(difX) > abs(difY)){
-    if (difX > 0){
-      badGuyThree.x = badGuyThree.x - 10;
-    }
-    else {
-      badGuyThree.x = badGuyThree.x + 10;
-    }
-  }
-  else {
-    if (difY > 0){
-      badGuyThree.y = badGuyThree.y - 10;
-    }
-    else {
-      badGuyThree.y = badGuyThree.y + 10;
-    }
-  }
+  badGuyThree.guardMove();
 }
 
 //the logic function, only called once per draw, but I find it nicer to put it in it's own function, does the basic 'hitbox' checking
@@ -424,12 +495,7 @@ void logic(){
 
 //had to use this multiple times, so... put it in a fucntion, just moves the coin, only need to move the 'head' coin b/c rest will follow
 void moveCoin(){
-  int a = (int)random(1, 460/10);
-  a = a * 10;
-  coinOne.x = a;
-  a = (int)random(1, 460/10);
-  a = a * 10;
-  coinOne.y = a;
+  coinOne.moveCoin();
 }
 
 //just needed to use this multiple times
@@ -483,5 +549,15 @@ void keyPressed() {
     else if (key == 'h') {
       direction = LEFT;
     }
+    
+    else if (key == 'r'){
+      showStart = false;
+      println("Starting in 3...");
+    }
+  }
+  
+  if (keyCode == ENTER){
+    showStart = false;
+    println("Starting in 3...");
   }
 }
