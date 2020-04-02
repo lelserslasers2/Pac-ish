@@ -1,6 +1,3 @@
-//TO DO
-//-add 2 more classes, mabe coin class, and ghost class (for ghosts 1 and 2)
-
 //VARS TO BE CHANGED (game preferences)
 boolean easyMode = true;
 int fps = 20;
@@ -31,7 +28,7 @@ class Thing {
 }
 
 
-class Coin extends Thing {
+class Coin extends Thing { //class with functions for the coin
   
   ArrayList<Thing> coinParts;
   
@@ -93,7 +90,7 @@ class Coin extends Thing {
 }
 
 
-class Ghost extends Thing { //ghost class with bonus functions
+class Ghost extends Thing { //the ghost class with bonus functions to control their movement
   
   Ghost(int x, int y, int fillColor){
     super(x, y, fillColor);
@@ -399,17 +396,15 @@ void restart(){
   a = a * 10;
   badGuyThree.y = a;
 }
-
+//Even tho it runs 1 line, it is it's own function so I can quickly change the way they move in 1 place
 //controls the first ghost's movement
 void badGuyOneMove(){
   badGuyOne.attackMove();
 }
-
 //same as ghost 1
 void badGuyTwoMove(){
   badGuyTwo.attackMove();
 }
-
 //play's 'guard', if close runs at pacman, otherwise, runs inbetween pacman and coin
 void badGuyThreeMove(){
   badGuyThree.guardMove();
@@ -493,7 +488,7 @@ void logic(){
   }
 }
 
-//had to use this multiple times, so... put it in a fucntion, just moves the coin, only need to move the 'head' coin b/c rest will follow
+//own function even tho it's one line so I could make changes in one place
 void moveCoin(){
   coinOne.moveCoin();
 }
@@ -550,13 +545,13 @@ void keyPressed() {
       direction = LEFT;
     }
     
-    else if (key == 'r'){
+    else if (key == 'r'){ //was for testing
       showStart = false;
       println("Starting in 3...");
     }
   }
   
-  if (keyCode == ENTER){
+  if (keyCode == ENTER){ // start the game
     showStart = false;
     println("Starting in 3...");
   }
