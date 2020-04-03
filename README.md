@@ -7,6 +7,10 @@
  
  Avoid the bad guys (red squares), the will try and stop you from getting the coin.
  
+ After pressing 'Enter' the game will give you 3 seconds to see the starting layout. You can enter your starting direction in that time.
+ 
+ After dying, you have 3 seconds to see how you died before going back to start screen.
+ 
  Link to game:
  
  https://github.com/lelserslasers2/Pac-ish/blob/master/pacish.jar?raw=true
