@@ -165,6 +165,7 @@ int chanceTwo = 0;
 int boosted = 0;
 int score = 0;
 boolean showStart = true;
+boolean firstTime = true;
 
 //the object that the player controls
 Thing pacman = new Thing(10, 10, #3cf024);
@@ -280,12 +281,13 @@ void move(){
 //the function that runs every frame
 void draw(){
   if (showStart){//shows the instuctions once
-    startScreen();
+    startScreen(!firstTime);
   }
   else {
   if (notLock){ //if game ends, wait for 3 seconds, so player can see how they died
       if (noBreak == 1){//causes 3 second delay so player can see the starting positions of things
         delay(3000);
+        firstTime = false;
       }
     //prints current score
     background(#000000);
@@ -332,12 +334,13 @@ void draw(){
       text("GAME OVER", 20, 40);
       delay(3000);
       restart(); //restart function
+      showStart = true;
     }
   }
 }
 
 //the instuction screen
-void startScreen(){
+void startScreen(boolean showScore){
   background(#000000);
   fill(#03a1fc);
   textSize(100);
@@ -351,7 +354,12 @@ void startScreen(){
   text("avoid the bad guys", 75, 325);
   text("(the red squares).", 75, 360);
   textSize(20);
-  text("Press 'Enter' to start.", 135, 425);
+  text("Press 'Enter' to start.", 135, 400);
+  text("Game will start in 3 seconds after 'Enter' is pressed", 3, 425);
+  text("Press 'ESC' to close.", 140, 450);
+  if (showScore){
+    text("Score: " + score, 185, 475);
+  }
 }
 
 //resets all the vars, so after you die, you can play again
@@ -359,7 +367,6 @@ void restart(){
   
   println("Restarting in 3...");
   
-  score = 0;
   noBreak = 0;
   notLock = true;
   direction = RIGHT;
@@ -548,11 +555,13 @@ void keyPressed() {
     else if (key == 'r'){ //was for testing
       showStart = false;
       println("Starting in 3...");
+      score = 0;
     }
   }
   
   if (keyCode == ENTER){ // start the game
     showStart = false;
     println("Starting in 3...");
+    score = 0;
   }
 }
